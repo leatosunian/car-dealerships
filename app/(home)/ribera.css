@@ -1,0 +1,410 @@
+/* Sistema visual del sitio público (dirección "Grafito"). Todo vive bajo .rb para no tocar el admin. */
+
+.rb {
+  --ink: #161616;
+  --ink-2: #1e1e1d;
+  --ink-3: #232322;
+  --ink-4: #2c2c2b;
+  --ink-5: #3a3a38;
+  --mist: #ecebe8;
+  --panel: #f7f7f5;
+  --stone: #dad9d4;
+  --silver: #c9c9c4;
+  --line: #e2e1dd;
+  --muted: #5e5e5a;
+  --fog: #a6a6a0;
+  --ash: #8a8a85;
+  --paper: #f5f5f2;
+  --ok: #7fcb8f;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --t: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease, transform 0.25s var(--ease);
+  background: var(--mist);
+  color: var(--ink);
+  /* Evita que el margen superior de la primera hoja colapse y deje ver el fondo blanco del body. */
+  display: flow-root;
+  font-family: var(--font-onest), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.rb a { color: inherit; text-decoration: none; }
+/* Todo lo interactivo anima sus cambios de hover. Las reglas de cada componente usan el mismo var(--t). */
+.rb :is(a, button, input, select, textarea, label) { transition: var(--t); }
+.rb h1, .rb h2, .rb h3 { font-weight: 600; }
+.rb .mono { font-family: var(--font-plex-mono), ui-monospace, monospace; }
+.rb .mut { color: var(--muted); }
+
+.rb .sheet {
+  border-radius: 32px;
+  background: var(--ink);
+  color: var(--paper);
+  position: relative;
+  overflow: hidden;
+}
+@media (min-width: 1024px) {
+  .rb .sheet { border-radius: 40px; padding-top: 92px; }
+}
+.rb .watermark {
+  position: absolute;
+  font-weight: 700;
+  letter-spacing: -0.07em;
+  line-height: 0.9;
+  color: var(--ink-2);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Transición entre páginas (app/(home)/template.tsx). Solo "backwards": al terminar no deja
+   un transform puesto, que rompería los elementos sticky y fixed de la página. */
+.rb .page-enter { animation: rb-page-in 0.55s var(--ease) backwards; }
+.rb .page-enter > main > :first-child { animation: rb-sheet-in 0.7s var(--ease) backwards; }
+@keyframes rb-page-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes rb-sheet-in {
+  from { clip-path: inset(0 0 12% 0 round 40px); }
+  to { clip-path: inset(0 0 0 0 round 40px); }
+}
+
+/* Foto del hero: el fondo negro de la imagen se funde con la hoja grafito */
+.rb .hero-photo {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 94%, transparent), linear-gradient(to bottom, transparent, #000 16%, #000 86%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 94%, transparent), linear-gradient(to bottom, transparent, #000 16%, #000 86%, transparent);
+  mask-composite: intersect;
+}
+
+/* Botones */
+.rb .btn {
+  height: 54px;
+  padding: 0 26px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--t);
+}
+.rb .btn:hover { background: var(--ink-5); }
+.rb .btn:disabled { opacity: 0.55; cursor: progress; }
+.rb .btn.light { background: var(--paper); color: var(--ink); }
+.rb .btn.light:hover { background: #fff; }
+.rb .btn.soft { background: var(--stone); color: var(--ink); font-weight: 500; }
+.rb .btn.soft:hover { background: var(--silver); }
+.rb .btn.line { background: transparent; border: 1px solid var(--silver); color: var(--ink); font-weight: 500; }
+.rb .btn.line:hover { border-color: var(--ink); }
+.rb .btn.dline { background: transparent; border: 1px solid #5a5a57; color: var(--paper); font-weight: 500; }
+.rb .btn.dline:hover { border-color: var(--paper); }
+.rb .btn.dsoft { background: var(--ink-4); color: var(--paper); font-weight: 500; }
+.rb .btn.dsoft:hover { background: var(--ink-5); }
+.rb .btn.go { padding: 0 7px 0 24px; gap: 14px; }
+
+.rb .arrow {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  transition: var(--t);
+}
+.rb .arrow.inv,
+.rb .btn:not(.light):not(.line):not(.soft) .arrow { background: var(--paper); color: var(--ink); }
+.rb .btn.light .arrow { background: var(--ink); color: var(--paper); }
+/* .btn y .arrow fijan display: estas reglas devuelven el control a hidden / lg:hidden / lg:inline-flex */
+.rb .btn.hidden,
+.rb .arrow.hidden { display: none; }
+@media (min-width: 1024px) {
+  .rb .btn.lg\:hidden { display: none; }
+  .rb .btn.lg\:inline-flex,
+  .rb .arrow.lg\:inline-flex { display: inline-flex; }
+}
+.rb .row-link { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.rb .row-link:hover .arrow { transform: translateX(3px); }
+
+/* Chips */
+.rb .chip {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--silver);
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--t);
+}
+.rb .chip:hover { border-color: var(--ink); }
+.rb .chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.rb .dchip {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--ink-5);
+  transition: var(--t);
+  background: transparent;
+  color: var(--silver);
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.rb button.dchip { cursor: pointer; }
+.rb button.dchip:hover { border-color: var(--ash); color: var(--paper); }
+.rb .dchip.on { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+
+/* Segmentado (radios en cápsula) */
+.rb .seg { display: flex; gap: 4px; padding: 4px; border-radius: 999px; }
+.rb .seg > button {
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Formularios */
+.rb .field { display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: var(--ink); }
+.rb .input {
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--silver);
+  border-radius: 999px;
+  height: 56px;
+  padding: 0 22px;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.rb select.input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23161616' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 22px center;
+  padding-right: 52px;
+  cursor: pointer;
+}
+.rb textarea.input { border-radius: 24px; height: auto; min-height: 140px; padding: 18px 22px; resize: vertical; line-height: 1.5; }
+.rb .input::placeholder { color: var(--ash); }
+/* globals.css pinta de gris cualquier input:hover (estilo del admin); acá no aplica */
+.rb input:hover { background-color: transparent; }
+.rb .input:hover { background-color: #fff; }
+.rb .input[aria-invalid="true"] { border-color: #b4412f; }
+.rb .err { font-size: 13px; color: #b4412f; }
+.rb .input:focus { outline: 2px solid var(--ink); outline-offset: 2px; }
+.rb a:focus-visible,
+.rb button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.rb input[type="range"] { width: 100%; height: 28px; accent-color: var(--ink); cursor: pointer; }
+.rb input[type="radio"],
+.rb input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--ink); flex: none; margin: 0; }
+
+/* Select propio (components/site/Select.tsx) */
+.rb .rb-select {
+  height: 56px;
+  width: 100%;
+  padding: 0 18px 0 22px;
+  border-radius: 999px;
+  border: 1px solid var(--silver);
+  background: #fff;
+  color: var(--ink);
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+.rb .rb-select.compact { height: 44px; width: auto; padding: 0 14px 0 16px; font-size: 14px; }
+.rb .rb-select:hover { border-color: var(--ash); }
+.rb .rb-select[data-state="open"] { border-color: var(--ink); }
+/* Al cerrar el menú, Radix devuelve el foco al trigger y el navegador lo marca como focus-visible:
+   se saca el contorno para que no quede el recuadro después de un click. */
+.rb .rb-select:focus,
+.rb .rb-select:focus-visible { outline: none; }
+.rb .rb-select[aria-invalid="true"] { border-color: #b4412f; }
+.rb .rb-select-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rb .rb-select [data-placeholder] { color: var(--ash); }
+.rb .rb-select-icon { display: inline-flex; flex: none; }
+.rb .rb-select-chevron {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--mist);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  transition: var(--t);
+}
+.rb .rb-select.compact .rb-select-chevron { width: 26px; height: 26px; }
+.rb .rb-select[data-state="open"] .rb-select-chevron { transform: rotate(180deg); background: var(--ink); color: var(--paper); }
+
+.rb .rb-select-menu {
+  z-index: 60;
+  min-width: var(--radix-select-trigger-width);
+  max-height: min(340px, var(--radix-select-content-available-height));
+  overflow: hidden;
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 60px rgba(22, 22, 22, 0.16), 0 2px 6px rgba(22, 22, 22, 0.06);
+  font-family: var(--font-onest), system-ui, sans-serif;
+  transform-origin: var(--radix-select-content-transform-origin);
+  animation: rb-select-in 0.18s var(--ease);
+}
+@keyframes rb-select-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+.rb .rb-select-viewport { padding: 6px; }
+.rb .rb-select-item {
+  min-height: 44px;
+  padding: 0 14px 0 16px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--ink);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  transition: var(--t);
+}
+.rb .rb-select-item[data-highlighted] { background: var(--mist); }
+.rb .rb-select-item[data-state="checked"] { background: var(--ink); color: var(--paper); font-weight: 500; }
+.rb .rb-select-check { display: inline-flex; }
+
+.rb .opt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 58px;
+  padding: 0 20px;
+  border: 1px solid var(--silver);
+  border-radius: 20px;
+  background: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+.rb .opt:hover,
+.rb .opt:has(input:checked) { border-color: var(--ink); }
+
+/* Superficies */
+.rb .panel { border-radius: 28px; background: var(--panel); }
+@media (min-width: 1024px) { .rb .panel { border-radius: 32px; } }
+.rb .glass {
+  background: rgba(22, 22, 22, 0.58);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 245, 242, 0.1);
+  color: var(--paper);
+}
+.rb .pill-tag {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(22, 22, 22, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--paper);
+  font-size: 12.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.rb .lift { transition: var(--t), transform 0.35s var(--ease); }
+.rb .lift img { transition: transform 0.6s var(--ease); }
+@media (hover: hover) {
+  .rb .lift:hover { transform: translateY(-4px); }
+  .rb .lift:hover img { transform: scale(1.035); }
+}
+/* Fila precio + botón: el botón se estira sobre la fila; si la card es angosta, el precio se desvanece durante el hover */
+.rb .card-row { position: relative; container-type: inline-size; min-height: 54px; }
+.rb .card-row .card-cta { position: absolute; right: 0; bottom: 0; }
+.rb .card-price { transition: var(--t); }
+@container (max-width: 300px) {
+  .rb a:hover .card-price,
+  .rb a:focus-visible .card-price { opacity: 0; transform: translateX(-8px); }
+}
+
+/* Botón de las cards de autos: flecha que se estira a "Ver vehículo" con el hover de la card */
+.rb .card-cta {
+  height: 40px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transform-origin: right center;
+  transition: padding 0.35s var(--ease), background-color 0.25s ease, transform 0.35s var(--ease);
+}
+.rb .card-cta.inv { background: var(--paper); color: var(--ink); }
+.rb .card-cta-label {
+  max-width: 0;
+  opacity: 0;
+  transition: max-width 0.4s var(--ease), opacity 0.25s ease, margin 0.4s var(--ease);
+}
+.rb .card-cta-icon { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.rb a:hover .card-cta,
+.rb a:focus-visible .card-cta { padding-left: 16px; transform: scale(1.04); }
+.rb a:hover .card-cta-label,
+.rb a:focus-visible .card-cta-label { max-width: 120px; opacity: 1; margin-right: 2px; }
+
+.rb .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); display: inline-block; flex: none; }
+
+/* Navegación */
+.rb .nl { padding: 11px 18px; border-radius: 999px; color: var(--silver); font-size: 14.5px; transition: var(--t); }
+.rb .nl { white-space: nowrap; }
+@media (max-width: 1279px) {
+  .rb .nl { padding: 10px 13px; font-size: 14px; }
+}
+.rb .nl:hover { color: var(--paper); background: var(--ink-4); }
+.rb .nl.on { background: var(--paper); color: var(--ink); font-weight: 500; }
+.rb .fl { color: var(--fog); font-size: 14.5px; }
+.rb .fl:hover { color: var(--paper); }
+
+.rb .no-scrollbar { scrollbar-width: none; }
+.rb .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Hovers de controles sin estilo propio */
+.rb .seg > button[aria-checked="false"]:hover,
+.rb .seg > button[aria-selected="false"]:hover,
+.rb button.tipo[aria-checked="false"]:hover { background-color: rgba(128, 128, 124, 0.16); }
+.rb [role="tab"][aria-selected="false"]:not(.seg > *):hover { background-color: var(--line); }
+.rb .input:hover { border-color: var(--ash); }
+.rb .thumb:hover { opacity: 0.85 !important; }
+.rb .faq-item { transition: var(--t); }
+.rb .faq-item:hover { background: #fff; }
+.rb .pill-link:hover { border-color: var(--ink); }
+
+/* Las transiciones se mantienen aunque el sistema operativo tenga las animaciones desactivadas
+   (prefers-reduced-motion): es una decisión de diseño explícita. */
